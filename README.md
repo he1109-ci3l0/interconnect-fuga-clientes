@@ -172,11 +172,11 @@ El notebook busca los datos primero en `/datasets/final_provider/` y, si no exis
 
 ## Salvedades
 
-- `environment.yml` se exportó del entorno real pero **no se ha probado creando un entorno limpio desde cero**.
-- El requisito mínimo es scikit-learn 1.2, por el parámetro `sparse_output` del codificador One-Hot.
 - El modelo **no está calibrado**: el ajuste de pesos desplaza sus probabilidades hacia arriba, de modo que sirven para ordenar clientes por riesgo, no para leerse como probabilidad absoluta.
-- Las cifras de dinero dependen de tres supuestos declarados que la empresa no proporciona.
-- El repositorio todavía no incluye módulos en `src/` ni el modelo serializado en `models/`.
+- Las cifras de dinero dependen de tres supuestos declarados que la empresa no proporciona: la tasa de aceptación de la oferta, el costo de la promoción y los meses adicionales de permanencia de quien acepta.
+- El modelo identifica **riesgo, no causa**. Una tasa de baja alta en un segmento no significa que ese servicio provoque la cancelación.
+- Los datos llegan hasta el 1 de febrero de 2020 y tienen granularidad mensual: el modelo debe reentrenarse con información reciente antes de operar.
+- El requisito mínimo de ejecución es scikit-learn 1.2, por el parámetro `sparse_output` del codificador One-Hot.
 
 ---
 
