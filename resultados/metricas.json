@@ -1,0 +1,521 @@
+{
+  "fecha_corte": "2020-02-01",
+  "n_clientes": 7043,
+  "tasa_baja": 0.2654,
+  "eda": {
+    "clientes": 7043,
+    "bajas": 1869,
+    "tasa_baja_general": 0.2654,
+    "participacion_bajas_mes_a_mes": 0.8855,
+    "tasa_por_contrato": {
+      "Mes a mes": 0.4271,
+      "Un año": 0.1127,
+      "Dos años": 0.0283
+    },
+    "tasa_por_antiguedad": {
+      "Menos de 3": 0.5835,
+      "3 a 5": 0.4735,
+      "6 a 11": 0.3653,
+      "12 a 23": 0.2951,
+      "24 a 47": 0.2087,
+      "48 o más": 0.0964
+    },
+    "tasa_por_metodo_pago": {
+      "Cheque electrónico": 0.4529,
+      "Cheque por correo": 0.1911,
+      "Transferencia automática": 0.1671,
+      "Tarjeta automática": 0.1524
+    },
+    "tasa_por_servicio_internet": {
+      "Fibra óptica": 0.4189,
+      "DSL": 0.1896,
+      "Sin internet": 0.074
+    },
+    "antiguedad_mediana_meses": {
+      "activo": 38.0,
+      "baja": 10.0
+    },
+    "cargo_mensual_promedio": {
+      "activo": 61.27,
+      "baja": 74.44
+    }
+  },
+  "particiones": {
+    "entrenamiento": 4225,
+    "validacion": 1409,
+    "prueba": 1409
+  },
+  "baseline": {
+    "Modelo constante": {
+      "auc_roc_validacion": 0.5,
+      "recall_validacion": 0.0,
+      "precision_validacion": 0.0
+    },
+    "Regresión logística": {
+      "auc_roc_validacion": 0.8356,
+      "recall_validacion": 0.5749,
+      "precision_validacion": 0.6305
+    },
+    "Bosque aleatorio": {
+      "auc_roc_validacion": 0.8157,
+      "recall_validacion": 0.5107,
+      "precision_validacion": 0.6283
+    },
+    "LightGBM": {
+      "auc_roc_validacion": 0.8228,
+      "recall_validacion": 0.5455,
+      "precision_validacion": 0.6201
+    }
+  },
+  "optimizados": {
+    "Regresión logística · baseline": {
+      "auc_roc_validacion": 0.8356,
+      "recall_validacion": 0.5749,
+      "precision_validacion": 0.6305,
+      "hiperparametros": {
+        "C": 1.0,
+        "solver": "lbfgs",
+        "class_weight": null
+      }
+    },
+    "Regresión logística · optimizada": {
+      "auc_roc_validacion": 0.8356,
+      "recall_validacion": 0.5749,
+      "precision_validacion": 0.6324,
+      "hiperparametros": {
+        "C": 1.6307,
+        "class_weight": null,
+        "solver": "liblinear"
+      }
+    },
+    "Regresión logística · optimizada con ajuste de pesos": {
+      "auc_roc_validacion": 0.8354,
+      "recall_validacion": 0.8075,
+      "precision_validacion": 0.4855,
+      "hiperparametros": {
+        "C": 1.6307,
+        "class_weight": "balanced",
+        "solver": "liblinear"
+      }
+    },
+    "Bosque aleatorio · optimizado": {
+      "auc_roc_validacion": 0.8365,
+      "recall_validacion": 0.7968,
+      "precision_validacion": 0.4958,
+      "hiperparametros": {
+        "class_weight": "balanced",
+        "max_depth": 13,
+        "max_features": 0.3566,
+        "min_samples_leaf": 31,
+        "n_estimators": 321
+      }
+    },
+    "LightGBM · optimizado": {
+      "auc_roc_validacion": 0.8374,
+      "recall_validacion": 0.8021,
+      "precision_validacion": 0.491,
+      "hiperparametros": {
+        "class_weight": "balanced",
+        "learning_rate": 0.0107,
+        "min_child_samples": 11,
+        "n_estimators": 637,
+        "num_leaves": 5,
+        "reg_lambda": 0.0304
+      }
+    }
+  },
+  "final": {
+    "modelo": "Regresión logística optimizada con ajuste de pesos",
+    "hiperparametros": {
+      "C": 1.6307,
+      "solver": "liblinear",
+      "class_weight": "balanced"
+    },
+    "umbral": 0.5,
+    "auc_roc_prueba": 0.8421,
+    "recall_prueba": 0.7968,
+    "precision_prueba": 0.5256,
+    "calificacion_segun_la_escala": "Bueno",
+    "matriz_de_confusion": {
+      "verdaderos_negativos": 766,
+      "falsos_positivos": 269,
+      "falsos_negativos": 76,
+      "verdaderos_positivos": 298
+    }
+  },
+  "importancia_por_permutacion": {
+    "antiguedad_meses": 0.16966,
+    "InternetService": 0.04167,
+    "Type": 0.0342,
+    "MonthlyCharges": 0.03296,
+    "TotalCharges": 0.0155,
+    "StreamingTV": 0.00512,
+    "OnlineSecurity": 0.00378,
+    "PaymentMethod": 0.0037,
+    "MultipleLines": 0.00319,
+    "TechSupport": 0.00239,
+    "StreamingMovies": 0.00224,
+    "PaperlessBilling": 0.00221,
+    "SeniorCitizen": 0.00097,
+    "Dependents": 0.00083,
+    "combinacion_servicios": 0.00061,
+    "OnlineBackup": 0.00031,
+    "DeviceProtection": 0.00012,
+    "gender": 4e-05,
+    "Partner": -9e-05
+  },
+  "negocio": {
+    "ingreso_mensual_perdido_por_bajas": 139130.85,
+    "ingreso_mensual_de_la_cartera": 456116.6,
+    "proporcion_del_ingreso_perdida": 0.305,
+    "prueba": {
+      "clientes_en_la_lista_de_contacto": 567,
+      "ingreso_mensual_de_la_lista": 42549.4,
+      "ingreso_mensual_rescatable": 22497.7,
+      "ingreso_mensual_que_escapa": 5085.35,
+      "cobertura_del_ingreso_en_fuga": 0.8156,
+      "con_umbral_recomendado": {
+        "umbral": 0.73,
+        "clientes_contactados": 310,
+        "bajas_detectadas": 202,
+        "contactados_que_no_se_iban": 108,
+        "recall": 0.5401,
+        "precision": 0.6516,
+        "valor_neto": 15215.92,
+        "valor_neto_ofreciendo_a_todos": -37716.5,
+        "diferencia": 52932.43
+      }
+    },
+    "captura_por_decil": [
+      {
+        "decil": 1,
+        "cartera_contactada": 10,
+        "bajas_capturadas": 27.8,
+        "clientes": 141,
+        "bajas": 104
+      },
+      {
+        "decil": 2,
+        "cartera_contactada": 20,
+        "bajas_capturadas": 49.5,
+        "clientes": 141,
+        "bajas": 81
+      },
+      {
+        "decil": 3,
+        "cartera_contactada": 30,
+        "bajas_capturadas": 66.0,
+        "clientes": 141,
+        "bajas": 62
+      },
+      {
+        "decil": 4,
+        "cartera_contactada": 40,
+        "bajas_capturadas": 79.1,
+        "clientes": 141,
+        "bajas": 49
+      },
+      {
+        "decil": 5,
+        "cartera_contactada": 50,
+        "bajas_capturadas": 88.5,
+        "clientes": 141,
+        "bajas": 35
+      },
+      {
+        "decil": 6,
+        "cartera_contactada": 60,
+        "bajas_capturadas": 92.8,
+        "clientes": 141,
+        "bajas": 16
+      },
+      {
+        "decil": 7,
+        "cartera_contactada": 70,
+        "bajas_capturadas": 97.3,
+        "clientes": 141,
+        "bajas": 17
+      },
+      {
+        "decil": 8,
+        "cartera_contactada": 80,
+        "bajas_capturadas": 98.7,
+        "clientes": 141,
+        "bajas": 5
+      },
+      {
+        "decil": 9,
+        "cartera_contactada": 90,
+        "bajas_capturadas": 99.5,
+        "clientes": 141,
+        "bajas": 3
+      },
+      {
+        "decil": 10,
+        "cartera_contactada": 100,
+        "bajas_capturadas": 100.0,
+        "clientes": 140,
+        "bajas": 2
+      }
+    ],
+    "supuestos": {
+      "tasas_de_aceptacion": [
+        0.1,
+        0.2,
+        0.3
+      ],
+      "costo_promocion_en_meses_de_cargo": [
+        0.5,
+        1.0,
+        2.0
+      ],
+      "meses_adicionales_de_permanencia": 12,
+      "cargo_mensual_promedio_de_las_bajas_en_validacion": 74.77,
+      "rango_de_umbrales_explorado": [
+        0.05,
+        0.95
+      ],
+      "conjunto_usado_para_elegir_el_umbral": "validación",
+      "cargo_mensual_promedio_de_las_bajas_en_prueba": 73.75
+    },
+    "escenarios_umbral": [
+      {
+        "aceptación": "10%",
+        "costo de la promoción": "0.5 meses",
+        "umbral óptimo": 0.73,
+        "clientes contactados": 344,
+        "valor neto con el modelo": 8724.114652406419,
+        "valor neto ofreciendo a todos": -19117.74550802139,
+        "decisión": "Contactar desde 0.73"
+      },
+      {
+        "aceptación": "10%",
+        "costo de la promoción": "1 mes",
+        "umbral óptimo": 0.87,
+        "clientes contactados": 101,
+        "valor neto con el modelo": 1151.962673796792,
+        "valor neto ofreciendo a todos": -71790.61101604278,
+        "decisión": "Contactar desde 0.87"
+      },
+      {
+        "aceptación": "10%",
+        "costo de la promoción": "2 meses",
+        "umbral óptimo": 0.95,
+        "clientes contactados": 0,
+        "valor neto con el modelo": 0.0,
+        "valor neto ofreciendo a todos": -177136.34203208555,
+        "decisión": "No lanzar la campaña"
+      },
+      {
+        "aceptación": "20%",
+        "costo de la promoción": "0.5 meses",
+        "umbral óptimo": 0.47,
+        "clientes contactados": 651,
+        "valor neto con el modelo": 33609.88604278074,
+        "valor neto ofreciendo a todos": 14437.374491978604,
+        "decisión": "Contactar desde 0.47"
+      },
+      {
+        "aceptación": "20%",
+        "costo de la promoción": "1 mes",
+        "umbral óptimo": 0.73,
+        "clientes contactados": 344,
+        "valor neto con el modelo": 17448.229304812838,
+        "valor neto ofreciendo a todos": -38235.49101604278,
+        "decisión": "Contactar desde 0.73"
+      },
+      {
+        "aceptación": "20%",
+        "costo de la promoción": "2 meses",
+        "umbral óptimo": 0.87,
+        "clientes contactados": 101,
+        "valor neto con el modelo": 2303.925347593584,
+        "valor neto ofreciendo a todos": -143581.22203208556,
+        "decisión": "Contactar desde 0.87"
+      },
+      {
+        "aceptación": "30%",
+        "costo de la promoción": "0.5 meses",
+        "umbral óptimo": 0.39,
+        "clientes contactados": 759,
+        "valor neto con el modelo": 63214.86529411767,
+        "valor neto ofreciendo a todos": 47992.49449197863,
+        "decisión": "Contactar desde 0.39"
+      },
+      {
+        "aceptación": "30%",
+        "costo de la promoción": "1 mes",
+        "umbral óptimo": 0.56,
+        "clientes contactados": 537,
+        "valor neto con el modelo": 40041.571443850284,
+        "valor neto ofreciendo a todos": -4680.371016042758,
+        "decisión": "Contactar desde 0.56"
+      },
+      {
+        "aceptación": "30%",
+        "costo de la promoción": "2 meses",
+        "umbral óptimo": 0.8,
+        "clientes contactados": 243,
+        "valor neto con el modelo": 14646.77326203209,
+        "valor neto ofreciendo a todos": -110026.10203208553,
+        "decisión": "Contactar desde 0.80"
+      }
+    ],
+    "escenarios_en_perdida_si_se_ofrece_a_todos": 7,
+    "umbral_recomendado": 0.73,
+    "perfiles_por_segmento": [
+      {
+        "dimensión": "Antigüedad",
+        "segmento": "Menos de 3 meses",
+        "clientes": 174,
+        "tasa de baja observada": 0.5862,
+        "probabilidad media del modelo": 0.6863,
+        "ingreso mensual": 9228.25
+      },
+      {
+        "dimensión": "Antigüedad",
+        "segmento": "3 a 5 meses",
+        "clientes": 85,
+        "tasa de baja observada": 0.5059,
+        "probabilidad media del modelo": 0.685,
+        "ingreso mensual": 4839.25
+      },
+      {
+        "dimensión": "Antigüedad",
+        "segmento": "12 a 23 meses",
+        "clientes": 213,
+        "tasa de baja observada": 0.3052,
+        "probabilidad media del modelo": 0.5176,
+        "ingreso mensual": 12376.45
+      },
+      {
+        "dimensión": "Antigüedad",
+        "segmento": "6 a 11 meses",
+        "clientes": 168,
+        "tasa de baja observada": 0.3036,
+        "probabilidad media del modelo": 0.5819,
+        "ingreso mensual": 9666.45
+      },
+      {
+        "dimensión": "Antigüedad",
+        "segmento": "24 a 47 meses",
+        "clientes": 326,
+        "tasa de baja observada": 0.1963,
+        "probabilidad media del modelo": 0.3662,
+        "ingreso mensual": 21221.4
+      },
+      {
+        "dimensión": "Antigüedad",
+        "segmento": "48 meses o más",
+        "clientes": 443,
+        "tasa de baja observada": 0.1106,
+        "probabilidad media del modelo": 0.1694,
+        "ingreso mensual": 31516.65
+      },
+      {
+        "dimensión": "Método de pago",
+        "segmento": "Cheque electrónico",
+        "clientes": 461,
+        "tasa de baja observada": 0.4469,
+        "probabilidad media del modelo": 0.6422,
+        "ingreso mensual": 34591.8
+      },
+      {
+        "dimensión": "Método de pago",
+        "segmento": "Cheque por correo",
+        "clientes": 316,
+        "tasa de baja observada": 0.193,
+        "probabilidad media del modelo": 0.3179,
+        "ingreso mensual": 13041.8
+      },
+      {
+        "dimensión": "Método de pago",
+        "segmento": "Tarjeta automática",
+        "clientes": 306,
+        "tasa de baja observada": 0.1863,
+        "probabilidad media del modelo": 0.2742,
+        "ingreso mensual": 19963.4
+      },
+      {
+        "dimensión": "Método de pago",
+        "segmento": "Transferencia automática",
+        "clientes": 326,
+        "tasa de baja observada": 0.1534,
+        "probabilidad media del modelo": 0.3057,
+        "ingreso mensual": 21251.45
+      },
+      {
+        "dimensión": "Servicio de internet",
+        "segmento": "Fibra óptica",
+        "clientes": 584,
+        "tasa de baja observada": 0.4264,
+        "probabilidad media del modelo": 0.6043,
+        "ingreso mensual": 53348.45
+      },
+      {
+        "dimensión": "Servicio de internet",
+        "segmento": "DSL",
+        "clientes": 504,
+        "tasa de baja observada": 0.2183,
+        "probabilidad media del modelo": 0.3512,
+        "ingreso mensual": 28718.75
+      },
+      {
+        "dimensión": "Servicio de internet",
+        "segmento": "Sin internet",
+        "clientes": 321,
+        "tasa de baja observada": 0.0467,
+        "probabilidad media del modelo": 0.1562,
+        "ingreso mensual": 6781.25
+      },
+      {
+        "dimensión": "Servicios contratados",
+        "segmento": "Internet y teléfono",
+        "clientes": 949,
+        "tasa de baja observada": 0.333,
+        "probabilidad media del modelo": 0.4991,
+        "ingreso mensual": 76343.9
+      },
+      {
+        "dimensión": "Servicios contratados",
+        "segmento": "Solo internet",
+        "clientes": 139,
+        "tasa de baja observada": 0.3094,
+        "probabilidad media del modelo": 0.4047,
+        "ingreso mensual": 5723.3
+      },
+      {
+        "dimensión": "Servicios contratados",
+        "segmento": "Solo teléfono",
+        "clientes": 321,
+        "tasa de baja observada": 0.0467,
+        "probabilidad media del modelo": 0.1562,
+        "ingreso mensual": 6781.25
+      },
+      {
+        "dimensión": "Tipo de contrato",
+        "segmento": "Mes a mes",
+        "clientes": 769,
+        "tasa de baja observada": 0.4265,
+        "probabilidad media del modelo": 0.6194,
+        "ingreso mensual": 50022.0
+      },
+      {
+        "dimensión": "Tipo de contrato",
+        "segmento": "Un año",
+        "clientes": 315,
+        "tasa de baja observada": 0.1111,
+        "probabilidad media del modelo": 0.2606,
+        "ingreso mensual": 20631.05
+      },
+      {
+        "dimensión": "Tipo de contrato",
+        "segmento": "Dos años",
+        "clientes": 325,
+        "tasa de baja observada": 0.0338,
+        "probabilidad media del modelo": 0.0668,
+        "ingreso mensual": 18195.4
+      }
+    ]
+  }
+}

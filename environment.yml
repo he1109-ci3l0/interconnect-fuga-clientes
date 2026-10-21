@@ -1,0 +1,16 @@
+name: interconnect-fuga-clientes
+channels:
+  - conda-forge
+dependencies:
+  - lightgbm
+  - scikit-learn
+  - ipykernel
+  - jupyter
+  - python=3.11
+  - nbclient
+  - numpy
+  - seaborn
+  - pandas
+  - nbformat
+  - matplotlib
+  - joblib

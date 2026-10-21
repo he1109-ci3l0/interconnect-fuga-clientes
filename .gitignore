@@ -1,0 +1,10 @@
+data/
+instrucciones/
+bitacora.md
+LEEME.md
+.DS_Store
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+.respaldo/
+estudio/

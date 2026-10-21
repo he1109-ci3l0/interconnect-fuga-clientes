@@ -1,0 +1,145 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Interconnect · Predicción de fuga de clientes</title>
+<meta name="description" content="Modelo de predicción de cancelación de clientes en telecomunicaciones: AUC-ROC 0.8421, a quién contactar y cuánto vale hacerlo.">
+<style>
+:root{--bruma:#F7F7F5;--niebla:#EAE6E0;--perg:#E0DDD5;--crema:#E8EBE0;--bosque:#2E3C2C;
+--helecho:#4A5E48;--salvia:#8A9E80;--tinta:#14352A;--sidebar:#122A1F;--arena:#CDB29D;
+--malva:#8A6A72;--alerta-bg:#670010;--alerta-bd:#960018;
+--fondo:var(--bruma);--texto:var(--tinta);--panel:#fff;--borde:var(--perg);--suave:var(--niebla);}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--fondo:#101d16;--texto:#E8EBE0;
+--panel:#16281e;--borde:#24402f;--suave:#1b3124;}}
+@font-face{font-family:'Bricolage Grotesque';font-weight:400;src:url(fuentes/BricolageGrotesque_400Regular.ttf) format('truetype');font-display:swap;}
+@font-face{font-family:'Bricolage Grotesque';font-weight:700;src:url(fuentes/BricolageGrotesque_700Bold.ttf) format('truetype');font-display:swap;}
+@font-face{font-family:'Raleway';font-weight:400;src:url(fuentes/Raleway_400Regular.ttf) format('truetype');font-display:swap;}
+@font-face{font-family:'Raleway';font-weight:600;src:url(fuentes/Raleway_600SemiBold.ttf) format('truetype');font-display:swap;}
+@font-face{font-family:'Zeyada';font-weight:400;src:url(fuentes/Zeyada_400Regular.ttf) format('truetype');font-display:swap;}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--fondo);color:var(--texto);font-family:'Raleway',system-ui,sans-serif;
+font-size:16px;line-height:1.65;-webkit-text-size-adjust:100%;}
+.env{max-width:940px;margin:0 auto;padding:0 16px 70px;}
+.port{position:relative;padding:60px 22px 46px;margin:0 -16px 26px;color:var(--crema);
+background-image:linear-gradient(rgba(18,42,31,.30),rgba(18,42,31,.96)),url(papel-tapiz.jpg);
+background-size:cover;background-position:center;}
+.port h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:clamp(27px,7.2vw,48px);
+line-height:1.1;margin:0 0 16px;}
+.port .bajada{font-size:clamp(15px,3.9vw,19px);max-width:56ch;margin:0 0 20px;}
+.port .firma{font-family:'Zeyada',cursive;font-size:32px;color:var(--arena);margin-top:6px;}
+.eyebrow{display:inline-block;font-family:'Bricolage Grotesque',sans-serif;font-size:11px;
+letter-spacing:.2em;text-transform:uppercase;color:var(--arena);margin-bottom:14px;}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:22px;}
+.kpi{background:rgba(18,42,31,.55);border:1px solid rgba(205,178,157,.35);border-radius:12px;padding:12px 14px;}
+.kpi b{display:block;font-family:'Bricolage Grotesque',sans-serif;font-size:26px;color:var(--arena);line-height:1.1;}
+.kpi span{font-size:12px;opacity:.9;}
+details.sec{background:var(--panel);border:1px solid var(--borde);border-radius:14px;
+margin-bottom:16px;overflow:hidden;}
+details.sec>summary{list-style:none;cursor:pointer;padding:16px 18px;color:var(--crema);
+background-image:linear-gradient(rgba(18,42,31,.97),rgba(18,42,31,.55)),url(papel-tapiz.jpg);
+background-size:cover;display:grid;grid-template-columns:auto 1fr;gap:2px 14px;align-items:baseline;}
+details.sec>summary::-webkit-details-marker{display:none;}
+.num{grid-column:1;grid-row:1/span 2;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;
+font-size:30px;color:var(--arena);line-height:1;}
+.tit{grid-column:2;grid-row:1;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;
+font-size:clamp(17px,4.4vw,23px);line-height:1.2;}
+.sub{grid-column:2;grid-row:2;font-size:12px;color:var(--arena);}
+.body{padding:18px 16px 20px;}
+.body p{margin:0 0 13px;}
+.negocio{background:var(--suave);border-radius:12px;padding:15px 16px;margin:14px 0;}
+.venta{background:linear-gradient(135deg,var(--bosque),var(--sidebar));color:var(--crema);
+border-radius:12px;padding:17px 18px;margin:16px 0;}
+.venta b{color:var(--arena);}
+.defensa{border-left:3px solid var(--malva);background:var(--suave);padding:13px 15px;
+border-radius:0 10px 10px 0;margin:14px 0;}
+.alerta{background:var(--alerta-bg);border:1px solid var(--alerta-bd);color:var(--arena);
+border-radius:12px;padding:15px 16px;margin:14px 0;}
+.alerta b{color:#fff;}
+figure{margin:16px 0;}
+figure img{width:100%;height:auto;border:1px solid var(--borde);border-radius:10px;display:block;}
+figcaption{font-size:11.5px;color:var(--malva);margin-top:5px;}
+table{border-collapse:collapse;width:100%;font-size:14px;margin:6px 0 14px;display:block;overflow-x:auto;}
+th,td{border:1px solid var(--borde);padding:8px 10px;text-align:left;}
+th{background:var(--suave);font-family:'Bricolage Grotesque',sans-serif;font-size:12.5px;}
+code{background:var(--suave);padding:1px 5px;border-radius:5px;font-size:.88em;font-family:ui-monospace,Menlo,monospace;}
+a{color:var(--malva);}
+ul{padding-left:20px;margin:0 0 13px;}li{margin-bottom:6px;}
+.pie{margin-top:34px;padding-top:20px;border-top:1px solid var(--borde);text-align:center;}
+.pie .firma{font-family:'Zeyada',cursive;font-size:30px;color:var(--helecho);}
+.pie small{display:block;color:var(--malva);font-size:12px;margin-top:6px;}
+@media (max-width:420px){.body{padding:14px 12px 16px;}.port{padding:44px 16px 34px;}}
+</style></head><body><div class="env">
+<header class="port"><span class="eyebrow">Caso de estudio · Ciencia de datos</span>
+<h1>Un tercio de la facturación se iba por la puerta</h1>
+<p class="bajada">Interconnect no sabía a quién ofrecerle una promoción. Construí un modelo que ordena a sus clientes por riesgo de cancelación y calcula a cuántos conviene contactar para que la campaña gane dinero en lugar de perderlo.</p>
+<div class="kpis">
+<div class="kpi"><b>0.8421</b><span>AUC-ROC sobre clientes nunca vistos</span></div>
+<div class="kpi"><b>80%</b><span>de las cancelaciones detectadas a tiempo</span></div>
+<div class="kpi"><b>52,932</b><span>de diferencia frente a ofrecer a todos</span></div>
+</div>
+<div class="firma">Belem Cisneros Díaz</div></header>
+
+<details class="sec" open><summary><span class="num">1</span><span class="tit">El problema, en dinero</span><span class="sub">Cuánto se estaba perdiendo</span></summary><div class="body"><p>Interconnect es un operador de telecomunicaciones que pierde clientes a un ritmo creciente. Su equipo de marketing sabe que retener cuesta mucho menos que adquirir, y quiere adelantarse: ofrecer una promoción a quien está por cancelar, antes de que cancele. El problema es que no sabe a quién.</p>
+<div class="negocio"><p>De los <b>7,043 clientes</b> del registro histórico, <b>1,869</b> terminaron dándose de baja: el <b>26.5%</b>. Esos clientes facturaban <b>139,130.85</b> al mes, el <b>30.5%</b> de los 456,116.60 que suman los cargos mensuales de todo el registro.</p>
+<p style="margin:0">Casi un tercio de la facturación registrada correspondía a clientes que terminaron yéndose.</p></div>
+<div class="venta"><p style="margin:0">La alternativa que Interconnect tiene hoy —ofrecer promociones sin criterio— <b>produce pérdida en siete de los nueve escenarios</b> que evalué, con cifras que llegan a <b>−177,136</b>. No saber a quién dirigir la oferta no es neutral: cuesta dinero.</p></div>
+<figure><img alt="Uno de cada cuatro clientes del registro ya se dio de baja" src="figuras/eda_balance_objetivo.png"><figcaption>Uno de cada cuatro clientes del registro ya se dio de baja</figcaption></figure></div></details>
+<details class="sec" open><summary><span class="num">2</span><span class="tit">Los datos y cómo los uní</span><span class="sub">Cuatro archivos, 7,043 clientes</span></summary><div class="body"><p>Los datos llegan en cuatro archivos que describen al mismo cliente desde ángulos distintos: contrato, datos demográficos, servicios de internet y servicios telefónicos. Comparten la columna <code>customerID</code>, y lo primero que verifiqué es que no se repite en ninguno: si se repitiera, la unión multiplicaría filas y todo conteo de clientes dejaría de ser confiable.</p>
+<p>Como Interconnect vende internet y telefonía por separado, la unión genera celdas vacías: <b>1,526 clientes sin internet</b> y <b>682 sin línea telefónica</b>. Esos vacíos no son un error de captura, significan que el cliente no contrató el servicio, y los codifiqué con una categoría que lo dice con todas sus letras en lugar de imputarlos.</p>
+<div class="defensa"><p style="margin:0"><b>La decisión más delicada del proyecto.</b> No existe una columna que diga si el cliente se fue: hay que construirla desde la fecha de término del contrato. Esa misma fecha sirve para calcular la antigüedad de quien canceló. La uso para ambas cosas y acto seguido la elimino, porque un cliente real sobre el que hay que decidir hoy no viene con fecha de término escrita. El análisis comprueba de forma explícita que no sobrevive ninguna columna derivada de ella.</p></div></div></details>
+<details class="sec" open><summary><span class="num">3</span><span class="tit">Qué distingue a quien se va</span><span class="sub">Los hallazgos del análisis</span></summary><div class="body"><p>En lugar de describir las variables una por una, las ordené por cuánto separan a los dos grupos. Eso dice de entrada cuáles van a cargar el peso del modelo y cuáles no aportan nada.</p>
+<table><tr><th>Señal</th><th>Tasa de baja</th><th>Contra</th></tr>
+<tr><td>Contrato mes a mes</td><td><b>42.7%</b></td><td>2.8% del contrato a dos años</td></tr>
+<tr><td>Menos de tres meses de antigüedad</td><td><b>58.4%</b></td><td>9.6% de quienes llevan cuatro años o más</td></tr>
+<tr><td>Pago con cheque electrónico</td><td><b>45.3%</b></td><td>15.2% de quienes pagan con tarjeta</td></tr>
+<tr><td>Fibra óptica</td><td><b>41.9%</b></td><td>19.0% de DSL</td></tr></table>
+<p>El contrato mes a mes concentra por sí solo el <b>88.5% de todas las cancelaciones</b>. Y hay un resultado que importa tanto como los anteriores: el género separa <b>0.8 puntos</b> y tener línea telefónica, 1.8. Están en los datos y no informan nada. También eso se reporta.</p>
+<figure><img alt="El contrato mes a mes concentra casi nueve de cada diez bajas" src="figuras/eda_bajas_por_contrato.png"><figcaption>El contrato mes a mes concentra casi nueve de cada diez bajas</figcaption></figure>
+<figure><img alt="El riesgo se concentra en los primeros meses de la relación" src="figuras/eda_bajas_por_antiguedad.png"><figcaption>El riesgo se concentra en los primeros meses de la relación</figcaption></figure></div></details>
+<details class="sec" open><summary><span class="num">4</span><span class="tit">El modelo y el resultado</span><span class="sub">Por qué elegí el más simple</span></summary><div class="body"><p>Entrené un modelo constante como piso de comparación y tres modelos reales de familias distintas. El más simple ganó, y al optimizarlos los tres quedaron empatados dentro del margen de error.</p>
+<table><tr><th>Modelo</th><th>AUC-ROC en validación</th><th>Recall</th></tr>
+<tr><td>Regresión logística · baseline</td><td>0.8356</td><td>0.5749</td></tr><tr><td>Regresión logística · optimizada</td><td>0.8356</td><td>0.5749</td></tr><tr><td>Regresión logística · optimizada con ajuste de pesos</td><td>0.8354</td><td>0.8075</td></tr><tr><td>Bosque aleatorio · optimizado</td><td>0.8365</td><td>0.7968</td></tr><tr><td>LightGBM · optimizado</td><td>0.8374</td><td>0.8021</td></tr></table>
+<div class="defensa"><p style="margin:0">La diferencia entre el mejor modelo de árboles y la regresión logística es de <b>0.0020</b>, mientras que la variabilidad que produce el propio método de medición es de <b>0.0163</b>: ocho veces mayor. Es un empate técnico. Elegí el modelo lineal porque tiene el mejor Recall de los cinco candidatos, porque sus coeficientes se pueden leer y porque entrena en segundos. Cuando dos modelos empatan dentro del margen de error, elegir el complejo por un decimal es confundir ruido con desempeño.</p></div>
+<p>El conjunto de prueba se abrió <b>una sola vez</b>, con el modelo ya decidido, sobre 1,409 clientes que nunca había visto.</p>
+<div class="negocio"><p style="margin:0"><b>AUC-ROC 0.8421</b> · <b>Recall 0.7968</b> · Precisión 0.5256. De cada 100 clientes que cancelan, el modelo identifica 80 a tiempo.</p></div>
+<figure><img alt="Qué hace el modelo con los 1,409 clientes de prueba" src="figuras/final_matriz_y_roc_prueba.png"><figcaption>Qué hace el modelo con los 1,409 clientes de prueba</figcaption></figure>
+<p>Un detalle que mejora el resultado: las cancelaciones que el modelo no detecta facturaban en promedio 66.91 mensuales frente a 75.50 de las que sí detecta. Son clientes de menor valor, así que el modelo alcanza el <b>81.6% del ingreso en fuga</b>, por encima del 79.7% de los clientes.</p>
+<figure><img alt="La antigüedad del cliente es lo que más mueve el riesgo" src="figuras/final_importancia_variables.png"><figcaption>La antigüedad del cliente es lo que más mueve el riesgo</figcaption></figure></div></details>
+<details class="sec" open><summary><span class="num">5</span><span class="tit">El valor de negocio</span><span class="sub">A cuántos contactar y cuánto vale</span></summary><div class="body"><p>Un modelo no es un entregable: es un insumo para decidir. Estas son las tres preguntas que el área comercial necesita responder antes de aprobar un presupuesto.</p>
+<p><b>¿A cuántos hay que contactar?</b> No hace falta la cartera entera. Ordenando a los clientes por riesgo, <b>atender al 30% alcanza al 66% de quienes se van</b>. Contactando a ese mismo porcentaje sin criterio solo se encontraría al 30%.</p>
+<figure><img alt="Atendiendo a tres de cada diez clientes se alcanza a dos tercios de las bajas" src="figuras/negocio_captura_por_deciles.png"><figcaption>Atendiendo a tres de cada diez clientes se alcanza a dos tercios de las bajas</figcaption></figure>
+<p><b>¿Dónde cortar la lista?</b> El umbral de decisión no es una preferencia técnica: decide si la campaña gana o pierde dinero. Lo elegí sobre el conjunto de validación maximizando el valor neto esperado, bajo supuestos que declaro —tasa de aceptación, costo de la promoción y meses adicionales de permanencia— porque Interconnect no proporciona esos datos.</p>
+<figure><img alt="El umbral decide si la campaña gana o pierde dinero" src="figuras/negocio_umbral_valor_esperado.png"><figcaption>El umbral decide si la campaña gana o pierde dinero</figcaption></figure>
+<div class="venta"><p>En el escenario intermedio —una de cada cinco personas acepta la oferta, la promoción cuesta un mes de servicio— el umbral óptimo es <b>0.73</b>. Aplicado al conjunto de prueba contacta a <b>310 de 1,409 clientes</b>, detecta <b>202 de las 374</b> cancelaciones y deja un valor neto de <b>15,216</b>.</p>
+<p style="margin:0">Ofrecer la promoción a toda la cartera, en ese mismo escenario, deja <b>-37,716</b>. La diferencia entre decidir con el modelo y decidir sin él es de <b>52,932</b>.</p></div>
+<p><b>¿Y si no conviene?</b> En el escenario más adverso que evalué —solo una de cada diez acepta y la promoción cuesta dos meses— ningún umbral produce valor positivo, y la recomendación es no lanzar la campaña. Un sistema que solo sabe decir «contacte a estos» no sirve para decidir un presupuesto; este también dice cuándo no vale la pena gastar.</p>
+<table><tr><th>Segmento</th><th>Evidencia</th><th>Acción propuesta</th></tr>
+<tr><td>Contrato mes a mes</td><td>42.7% de baja · 88.5% de las cancelaciones</td><td>Incentivo de migración a contrato anual con meses bonificados</td></tr>
+<tr><td>Menos de tres meses</td><td>58.4% de baja</td><td>Programa de bienvenida con contacto en el primer y segundo mes</td></tr>
+<tr><td>Cheque electrónico</td><td>45.3% de baja</td><td>Migración a domiciliación con un beneficio asociado</td></tr>
+<tr><td>Fibra óptica</td><td>41.9% de baja</td><td>Empaquetar soporte técnico o antivirus antes de descontar</td></tr></table></div></details>
+<details class="sec" open><summary><span class="num">6</span><span class="tit">Cómo usarlo mañana</span><span class="sub">Plan de implementación y límites</span></summary><div class="body"><table><tr><th>Decisión</th><th>Propuesta</th></tr>
+<tr><td>Frecuencia de cálculo</td><td>Mensual, con el cierre de facturación</td></tr>
+<tr><td>Umbral inicial</td><td>0.73, recalibrable en cuanto el piloto entregue la aceptación real</td></tr>
+<tr><td>Piloto con grupo de control</td><td>Dividir la lista de riesgo en dos mitades al azar; una recibe la oferta y la otra no</td></tr>
+<tr><td>Métricas de seguimiento</td><td>Tasa de baja por grupo, aceptación, costo por cliente retenido, valor neto efectivo</td></tr>
+<tr><td>Reentrenamiento</td><td>Cuando el AUC-ROC sobre datos nuevos caiga de 0.80, o cada seis meses</td></tr></table>
+<div class="alerta"><p style="margin:0"><b>El grupo de control no es un detalle metodológico.</b> Es lo que separa «retuvimos al 70 % de los contactados» de «retuvimos al 70 %, pero el 65 % se habría quedado de todos modos». Sin él, cualquier cifra de éxito es inverificable.</p></div>
+<p><b>Lo que este trabajo no resuelve:</b></p>
+<ul><li>Identifica riesgo, no causa. Que la fibra concentre cancelaciones no significa que las provoque: es el servicio más caro y atrae a clientes sensibles al precio.</li>
+<li>No garantiza que la promoción funcione. Predice quién está por irse, no quién se quedará si recibe una oferta.</li>
+<li>Las cifras de dinero dependen de tres supuestos declarados, no de datos de la empresa.</li>
+<li>Los datos llegan al 1 de febrero de 2020 y tienen granularidad mensual.</li></ul></div></details>
+<details class="sec" open><summary><span class="num">7</span><span class="tit">Fuentes</span><span class="sub">Cifras de mercado verificadas</span></summary><div class="body"><p>Las cifras de mercado que enmarcan este trabajo provienen de fuentes verificadas, con enlace y fecha:</p>
+<ul>
+<li>Churn postpago de AT&amp;T, 0.98 % en el cuarto trimestre de 2025 — <a href="https://www.phonearena.com/news/at-t-had-better-than-expected-quarter_id177767">PhoneArena, enero de 2026</a></li>
+<li>T-Mobile, 1.02 % en el cuarto trimestre de 2025 — <a href="https://convergedigest.com/t-mobile-extends-lead-in-postpaid-and-fwa-as-arpa-and-cash-flow-climb/">Converge Digest, febrero de 2026</a></li>
+<li>Verizon y sus 2.25 millones de clientes postpago perdidos en tres años — <a href="https://www.aol.com/finance/verizon-ceo-hopes-drastic-changes-230300198.html">AOL Finance, febrero de 2026</a></li>
+<li>Retener cuesta entre 5 y 25 veces menos que adquirir — <a href="https://hbr.org/2014/10/the-value-of-keeping-the-right-customers">Harvard Business Review, octubre de 2014</a></li>
+<li>La analítica avanzada reduce el churn hasta 15 % — <a href="https://www.mckinsey.com/industries/technology-media-and-telecommunications/our-insights/reducing-churn-in-telecom-through-advanced-analytics">McKinsey, diciembre de 2017</a></li>
+<li>Portabilidad móvil en México, −13.98 % anual — <a href="https://www.xataka.com.mx/telecomunicaciones/registro-obligatorio-celulares-esta-cambiando-otro-habito-mexicanos-cada-vez-cambian-compania">Xataka México con datos de la CRT, agosto de 2026</a></li>
+</ul>
+<div class="defensa"><p style="margin:0">Una advertencia de lectura: el 1 % que reportan los grandes operadores es churn <b>mensual</b>, mientras que el 26.5 % de este registro es <b>acumulado</b> sobre toda la historia del archivo. No son cifras comparables entre sí.</p></div>
+<p>El análisis completo, con el código y las salidas de cada paso, está en el <a href="https://github.com/he1109-ci3l0/interconnect-fuga-clientes">repositorio del proyecto</a>.</p></div></details>
+
+<footer class="pie"><div class="firma">Belem Cisneros Díaz</div>
+<small>Octubre de 2026 · <a href="https://github.com/he1109-ci3l0/interconnect-fuga-clientes">github.com/he1109-ci3l0</a> · Todas las cifras proceden de <code>resultados/metricas.json</code></small></footer>
+</div></body></html>
